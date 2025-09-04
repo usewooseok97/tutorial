@@ -1,0 +1,84 @@
+name: Create Notion Page from GitHub Issue
+
+# 이 워크플로우가 실행될 시점을 지정합니다.
+on:
+  issues:
+    types: [opened] # 리포지토리에서 이슈가 '열렸을(opened)' 때만 실행
+
+# 실행될 작업(Job)들을 정의합니다.
+jobs:
+  create-notion-page:
+    # 작업이 실행될 가상 환경을 지정합니다. (최신 우분투)
+    runs-on: ubuntu-latest
+
+    # 작업 내에서 실행될 단계(Step)들을 정의합니다.
+    steps:
+      # 1. Node.js 환경을 설정하는 단계
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18' # Node.js 18.x 버전을 사용
+
+      # 2. Notion API 클라이언트 라이브러리를 설치하는 단계
+      - name: Install Notion Client
+        run: npm install @notionhq/client
+
+      # 3. Notion 페이지를 생성하는 스크립트를 실행하는 단계
+      - name: Create Notion Page
+        # actions/github-script를 사용해 GitHub API 및 워크플로우 컨텍스트에 접근
+        uses: actions/github-script@v6
+        with:
+          # 스크립트에서 사용할 환경 변수들을 GitHub Secrets에서 가져옵니다.
+          script: |
+            // 이 스크립트는 Node.js 환경에서 실행됩니다.
+            const { Client } = require('@notionhq/client');
+
+            // 1단계에서 설정한 Secrets를 환경 변수에서 가져옵니다.
+            const notion = new Client({ auth: process.env.NOTION_API_KEY });
+            const databaseId = process.env.NOTION_DATABASE_ID;
+
+            // GitHub Actions에 의해 자동으로 제공되는 이슈 정보를 가져옵니다.
+            const issue = context.payload.issue;
+
+            // Notion API를 호출하여 새 페이지를 생성합니다.
+            await notion.pages.create({
+              parent: { database_id: databaseId },
+              // 아이콘을 GitHub 로고로 설정 (선택 사항)
+              icon: {
+                type: "external",
+                external: { "url": "https://cdn-icons-png.flaticon.com/512/25/25231.png" }
+              },
+              properties: {
+                // '이름' 속성: Notion 데이터베이스의 제목(title) 속성 이름과 정확히 일치해야 합니다.
+                // 만약 Notion에서 '제목'이라고 되어있다면 '이름'을 '제목'으로 바꿔주세요.
+                '이름': {
+                  title: [
+                    {
+                      text: {
+                        content: `#${issue.number}: ${issue.title}`
+                      }
+                    }
+                  ]
+                },
+                // 'URL' 속성: Notion 데이터베이스에 URL 유형의 속성이 있어야 합니다.
+                'URL': {
+                  url: issue.html_url
+                },
+                // (예시) '상태' 속성: Notion에 '상태'라는 이름의 상태(status) 속성이 있을 경우
+                '상태': {
+                  status: {
+                    name: 'To-do' // 이슈가 생성되면 기본 'To-do' 상태로 설정
+                  }
+                },
+                // (예시) '태그' 속성: Notion에 '태그'라는 이름의 다중 선택(multi_select) 속성이 있을 경우
+                // GitHub 이슈의 라벨들을 Notion 태그로 동기화합니다.
+                '태그': {
+                   multi_select: issue.labels.map(label => {
+                     return { name: label.name }
+                   })
+                }
+              }
+            });
+        env:
+          NOTION_API_KEY: ${{ secrets.NOTION_API_KEY }}
+          NOTION_DATABASE_ID: ${{ secrets.NOTION_DATABASE_ID }}
