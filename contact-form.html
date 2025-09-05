@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Form</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <form class="contact-form" id="contactForm">
+            <!-- Name Field -->
+            <div class="input-field">
+                <label for="name" class="label">Name</label>
+                <div class="description">Enter your first name</div>
+                <div class="input-container">
+                    <input type="text" id="name" name="name" class="input" placeholder="Value">
+                </div>
+                <div class="error-message" id="nameError"></div>
+            </div>
+
+            <!-- Surname Field -->
+            <div class="input-field">
+                <label for="surname" class="label">Surname</label>
+                <div class="description">Enter your last name</div>
+                <div class="input-container">
+                    <input type="text" id="surname" name="surname" class="input" placeholder="Value">
+                </div>
+                <div class="error-message" id="surnameError"></div>
+            </div>
+
+            <!-- Email Field -->
+            <div class="input-field">
+                <label for="email" class="label">Email</label>
+                <div class="description">Enter your email address</div>
+                <div class="input-container">
+                    <input type="email" id="email" name="email" class="input" placeholder="Value">
+                </div>
+                <div class="error-message" id="emailError"></div>
+            </div>
+
+            <!-- Message Field -->
+            <div class="textarea-field">
+                <label for="message" class="label">Message</label>
+                <div class="description">Enter your message</div>
+                <div class="textarea-container">
+                    <textarea id="message" name="message" class="textarea" placeholder="Value" rows="3"></textarea>
+                </div>
+                <div class="hint">Please provide as much detail as possible</div>
+            </div>
+
+            <!-- Button Group -->
+            <div class="button-group">
+                <button type="button" class="button secondary" id="cancelBtn">Button</button>
+                <button type="submit" class="button primary" id="submitBtn">Submit</button>
+            </div>
+        </form>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
